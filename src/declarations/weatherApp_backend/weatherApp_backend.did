@@ -1,0 +1,9 @@
+type List = 
+ opt record {
+       text;
+       List;
+     };
+service : {
+  fetchList: () -> (List);
+  put: (text) -> (text);
+}
