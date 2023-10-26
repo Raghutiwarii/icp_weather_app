@@ -14,6 +14,11 @@ actor {
 
   public func fetchList() : async List.List<Text>{
     return list;
-  }
+  };
+
+  public func deleteHistory() : async List.List<Text> {
+    list:= List.nil<Text>();
+    return list;
+  };
 
 };
