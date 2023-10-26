@@ -1,11 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AsyncPaginate } from "react-select-async-paginate";
 import { geoApiOptions, GEO_API_URL } from "../../api";
 import { weatherApp_backend } from "../../../../declarations/weatherApp_backend";
 
+const SearchData = ({ listData }) => {
+  const containerStyle = {
+    border: "1px solid #ccc",
+    padding: "10px",
+    margin: "10px",
+    borderRadius: "5px",
+    backgroundColor: "#f9f9f9",
+  };
+
+  const listStyle = {
+    listStyle: "none",
+    padding: "0",
+    display: "block !important", // Use !important
+  };
+
+  return (
+    <div style={containerStyle}>
+      <h2>Past Weather Search History</h2>
+      <ul style={listStyle}>
+        {listData.map((value, index) => (
+          <li key={index}> {value} </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const Search = ({ onSearchChange }) => {
   const [search, setSearch] = useState(null);
+  const [listData, setListData] = useState([]);
+
+  useEffect(() => {
+    // Fetch the listData when the component mounts
+    async function fetchListData() {
+      const listData = await weatherApp_backend.fetchList();
+      setListData(listData);
+    }
+
+    fetchListData();
+  }, []);
+
+  console.log(listData);
 
   const loadOptions = async (inputValue) => {
     const response = await fetch(
@@ -13,14 +52,10 @@ const Search = ({ onSearchChange }) => {
       geoApiOptions
     );
 
-    const searching = inputValue;
+    // Storing the inputValue in Motoko data
+    await weatherApp_backend.put(inputValue);
 
-    const push = await weatherApp_backend.put(searching);
-
-    const listData = await weatherApp_backend.fetchList();
-
-    const userSearch = listData.map(({ name }) => name)
-
+    const userSearch = listData.map(({ name }) => name);
     console.log(userSearch);
 
     const response_1 = await response.json();
@@ -29,9 +64,9 @@ const Search = ({ onSearchChange }) => {
         return {
           value: `${city.latitude} ${city.longitude}`,
           label: `${city.name}, ${city.countryCode}`,
-          
         };
-      }),
+      }).concat(userSearch.map(name => ({ value: name, label: name })),
+      ),
     };
   };
 
@@ -41,15 +76,16 @@ const Search = ({ onSearchChange }) => {
   };
 
   return (
-    <>
-    <AsyncPaginate
-      placeholder="Search for city"
-      debounceTimeout={600}
-      value={search}
-      onChange={handleOnChange}
-      loadOptions={loadOptions}
-    />
-    </>
+    <div>
+      <AsyncPaginate
+        placeholder="Search for city"
+        debounceTimeout={600}
+        value={search}
+        onChange={handleOnChange}
+        loadOptions={loadOptions}
+      />
+      <SearchData listData={listData} />
+    </div>
   );
 };
 
