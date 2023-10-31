@@ -3,6 +3,12 @@ import { AsyncPaginate } from "react-select-async-paginate";
 import { geoApiOptions, GEO_API_URL } from "../../api";
 import { weatherApp_backend } from "../../../../declarations/weatherApp_backend";
 
+function flattenArray(arr) {
+  return arr.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenArray(val)) : acc.concat(val), []);
+}
+
+// ...
+
 const SearchData = ({ listData }) => {
   const containerStyle = {
     border: "1px solid #ccc",
@@ -15,15 +21,17 @@ const SearchData = ({ listData }) => {
   const listStyle = {
     listStyle: "none",
     padding: "0",
-    display: "block !important", // Use !important
   };
+
+  // Flatten the list data if it contains nested arrays
+  const flattenedListData = flattenArray(listData);
 
   return (
     <div style={containerStyle}>
       <h2>Past Weather Search History</h2>
       <ul style={listStyle}>
-        {listData.map((value, index) => (
-          <li key={index}> {value} </li>
+        {flattenedListData.map((value, index) => (
+          <li key={index}>{value}</li>
         ))}
       </ul>
     </div>
