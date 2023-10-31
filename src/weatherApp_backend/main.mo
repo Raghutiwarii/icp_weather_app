@@ -7,6 +7,16 @@ actor {
 
   stable var list:List.List<Text> = List.nil<Text>();
 
+    public func isAlreadySearch(data: Text): async Bool {
+    var exists = false;
+    for (txt in List.toIter<Text>(list)) {
+      if (txt == data) {
+        exists := true;
+      }
+    };
+    return exists;
+  };
+
   public func put(data : Text) : async Text {
     list:= List.push(data,list);
     return data;
@@ -20,5 +30,4 @@ actor {
     list:= List.nil<Text>();
     return list;
   };
-
 };
